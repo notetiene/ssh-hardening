@@ -1,0 +1,22 @@
+### ssh-hardening/tasks/session.yml -- Tasks to harden SSH sessions.
+
+### Commentary:
+### Code:
+---
+
+- name: check session configuration
+  block:
+    - name: 
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^#?ClientAliveInterval"
+        line: "ClientAliveInterval {{ ssh_hardening_client_alive_interval }}"
+    - name: disable x11 forwarding
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^#?X11Forwarding"
+        line: "X11Forwarding no"
+
+### ssh-hardening/tasks/session.yml ends here

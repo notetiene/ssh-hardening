@@ -1,0 +1,20 @@
+### ssh-hardening/tasks/main.yml -- Tasks to harden an SSH server.
+
+### Commentary:
+### Code:
+---
+
+- name:
+    block:
+      - include_tasks: host_keys.yml
+      - include_tasks: version.yml
+      - include_tasks: crypto.yml
+      - include_tasks: auth.yml
+      - include_tasks: root.yml
+      - include_tasks: users.yml
+      - include_tasks: logs.yml
+      - include_tasks: useless.yml
+  notify: 
+    - restart sshd
+
+### ssh-hardening/tasks/main.yml ends here

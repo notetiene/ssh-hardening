@@ -1,0 +1,23 @@
+### ssh-hardening/tasks/useless.yml -- Tasks to harden useless options
+### (unless configuration is changed) of an SSH server.
+
+### Commentary:
+### Code:
+---
+
+- name: "set useless options (unless configuration is changed)"
+  block:
+    - name: check the password authentication method
+      lineinfile: 
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^#?PermitEmptyPasswords" 
+        line: "PermitEmptyPasswords no"
+    - name: set maximum authentication attempts
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^#?MaxAuthTries"
+        line: "MaxAuthTries {{ ssh_hardening_max_auth_tries }}"
+
+### ssh-hardening/tasks/useless.yml ends here

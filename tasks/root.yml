@@ -1,0 +1,15 @@
+### ssh-hardening/tasks/root.yml -- Tasks to harden an SSH server by
+### disabling root login from SSH.
+
+### Commentary:
+### Code:
+---
+
+- name: disabling the root account from connecting with SSH
+  lineinfile:
+    dest: "{{ ssh_hardening_config_file }}"
+    state: "present"
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin {{ ssh_hardening_permit_root_login }}"
+
+### ssh-hardening/tasks/root.yml ends here

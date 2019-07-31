@@ -1,0 +1,35 @@
+### ssh-hardening/tasks/auth.yml -- Tasks to harden an SSH server
+### authentication methods.
+
+### Commentary:
+### Code:
+---
+
+- name: "password connection disabled - only public key connections are allowed"
+  block:
+    - name: check authentication method
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^#?AuthenticationMethods"
+        line: "AuthenticationMethods {{ ssh_hardening_authentication_methods | join(',') }}"
+    - name: check the password authentication method
+      lineinfile: 
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^#?PasswordAuthentication" 
+        line: "PasswordAuthentication {{ ssh_hardening_password_authentication }}"
+    - name: check the challenge-response authentication method
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^#?ChallengeResponseAuthentication"
+        line: "ChallengeResponseAuthentication {{ ssh_hardening_challenge_response_authentication }}"
+    - name: check of the public key authentication method
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^#?PubkeyAuthentication"
+        line: "PubkeyAuthentication {{ ssh_hardening_pubkey_authentication }}"
+
+### ssh-hardening/tasks/auth.yml ends here

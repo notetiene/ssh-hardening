@@ -1,0 +1,15 @@
+### ssh-hardening/tasks/version.yml -- Tasks to harden an SSH server
+### protocol version.
+
+### Commentary:
+### Code:
+---
+
+- name: check ssh server protocol
+  lineinfile:
+    dest: "{{ ssh_hardening_config_file }}"
+    state: "present"
+    regexp: "^Protocol {{ ssh_hardening_version }}"
+    line: "Protocol {{ ssh_hardening_version }}"
+
+### ssh-hardening/tasks/version.yml ends here

@@ -1,0 +1,29 @@
+### ssh-hardening/tasks/crypto.yml -- Tasks to harden cryptographic
+### algorithms used in an SSH server.
+
+### Commentary:
+### Code:
+---
+
+- name: check authorized SSHD cryptography algorithms
+  block:
+    - name: check key exchange algorithms
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^KexAlgorithms"
+        line: "KexAlgorithms {{ ssh_hardening_kex_algorithms | join(',') }}"
+    - name: check of symmetric cryptography algorithms
+      lineinfile: 
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^Ciphers"
+        line: "Ciphers {{ ssh_hardening_ciphers | join(',') }}"
+    - name: check of mac (Message Authentication Code) algorithms
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^MACs"
+        line: "MACs {{ ssh_hardening_macs | join(',') }}"
+
+### ssh-hardening/tasks/crypto.yml ends here

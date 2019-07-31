@@ -1,0 +1,59 @@
+---
+# defaults file for ssh-hardening
+
+ssh_hardening_config_file: "/etc/ssh/sshd_config"
+ssh_hardening_host_key_remote_path: "/etc/ssh"
+ssh_hardening_host_key_temp_path: "/tmp"
+
+ssh_hardening_permit_root_login: no
+ssh_hardening_users_allowed:
+ssh_hardening_groups_allowed:
+    - ssh-allowed
+
+ssh_hardening_client_alive_interval: 120
+
+ssh_hardening_host_keys:
+  - 
+    type: "ed25519"
+    file: "ssh_host_ed25519_key"
+    comment: "Ed25519"
+    passphrase: ""
+    rounds: 64
+  - 
+    type: "rsa"
+    file: "ssh_host_rsa_key"
+    comment: "RSA"
+    passphrase: ""
+    bits: 4096
+
+ssh_hardening_sftp_server_bin:
+ssh_hardening_sftp_log_facility: "AUTHPRIV"
+ssh_hardening_sftp_log_level: "INFO"
+
+ssh_hardening_kex_algorithms:
+  - "curve25519-sha256@libssh.org"
+  - "diffie-hellman-group-exchange-sha256"
+  # - "curve25519-sha256@libssh.org
+ssh_hardening_ciphers:
+        - "chacha20-poly1305@openssh.com"
+        - "aes256-gcm@openssh.com"
+        - "aes128-gcm@openssh.com"
+        - "aes256-ctr"
+        - "aes192-ctr"
+        - "aes128-ctr"
+ssh_hardening_macs:
+  - "hmac-sha2-512-etm@openssh.com"
+  - "hmac-sha2-256-etm@openssh.com"
+  - "umac-128-etm@openssh.com"
+  # - "hmac-sha2-512"
+  # - "hmac-sha2-256"
+  # - "umac-128@openssh.com"
+
+ssh_hardening_version: 2
+ssh_hardening_password_authentication: "no"
+ssh_hardening_challenge_response_authentication: "no"
+ssh_hardening_pubkey_authentication: "yes"
+ssh_hardening_authentication_methods:
+  - "publickey"
+
+ssh_hardening_max_auth_tries: 3

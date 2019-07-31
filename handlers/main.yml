@@ -1,0 +1,7 @@
+---
+# handlers file for ssh-hardening
+
+- name: restart sshd
+  service:
+    name: "sshd"
+    state: "restarted"

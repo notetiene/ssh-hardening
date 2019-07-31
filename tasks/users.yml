@@ -1,0 +1,23 @@
+### ssh-hardening/tasks/users.yml -- Tasks to restrict users and
+### groups from using SSH.
+
+### Commentary:
+### Code:
+---
+
+- name: restrict users and groups to login with SSH
+  block:
+    - name: restrict users allowed to use SSH
+      lineinfile: 
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^AllowUsers"
+        line: "AllowUsers {{ ssh_hardening_users_allowed | join(',') }}"
+    - name: restrict groups allowed to use SSH
+      lineinfile: 
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^AllowGroups"
+        line: "AllowGroups {{ ssh_hardening_groups_allowed | join(',') }}"
+
+### ssh-hardening/tasks/users.yml ends here

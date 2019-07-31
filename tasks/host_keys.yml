@@ -1,0 +1,80 @@
+### ssh-hardening/tasks/hostkeys.yml -- Tasks to harden the SSH host keys
+### from a server.
+
+### Commentary:
+### Code:
+---
+
+- name: check supported SSH host keys
+  block:
+    - name: using high security host keys
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "present"
+        regexp: "^HostKey {{ ssh_hardening_host_key_remote_path }}/{{ item.file }}"
+        line: "HostKey {{ ssh_hardening_host_key_remote_path }}/{{ item.file }}"
+      loop: "{{ ssh_hardening_host_keys }}"
+    - name: disabling low security host keys
+      lineinfile:
+        dest: "{{ ssh_hardening_config_file }}"
+        state: "absent"
+        regexp: "^HostKey {{ ssh_hardening_host_key_remote_path }}/(?!(?:{{ ssh_hardening_host_keys | map(attribute='file') | join('|') }}))"
+
+- name: check if SSH host keys are present in local system
+  block:
+  - name: creating temporary local directory containing SSH host keys
+    file:
+      path: "{{ ssh_hardening_host_key_temp_path }}"
+      state: "directory"
+      mode: '700'
+    delegate_to: "localhost"
+    become: no
+  - name: generating SSH host keys from local machine
+    command: "ssh-keygen -q -t {{ item.type }} \
+    -f '{{ ssh_hardening_host_keys }}/{{ item.file }}' \
+    -C '{{ inventory_hostname }} {{ item.comment }}' \
+    -N '{{ item.passphrase | default('') }}' \
+    {% if item.rounds is defined %}{{'-a ' + (item.rounds | string)}}{% endif %} \
+    {% if item.bits is defined %}{{'-b ' + (item.bits | string)}}{% endif %}"
+    args:
+      creates: "{{ ssh_hardening_host_key_temp_path }}/{{ item.file }}"
+    when: item.fingerprint is undefined 
+    loop: "{{ ssh_hardening_host_keys }}"
+    delegate_to: "localhost"
+    become: no
+  - name: copy SSH host keys generated from local machine
+    block:
+      - name: copy SSH private host keys generated from local machine
+        copy:
+          src: "{{ ssh_hardening_host_key_temp_path }}/{{ item.file }}"
+          dest: "{{ ssh_hardening_host_key_remote_path }}/"
+          mode: "0600"
+        when: item.fingerprint is undefined
+        loop: "{{ ssh_hardening_host_keys }}"
+      - name: copy SSH public host keys generated from local machine
+        copy:
+          src: "{{ ssh_hardening_host_key_temp_path }}/{{ item.file }}.pub"
+          dest: "{{ ssh_hardening_host_key_remote_path }}/"
+          mode: "0644"
+        when: item.fingerprint is undefined
+        loop: "{{ ssh_hardening_host_keys }}"
+        notify:
+          - restart sshd
+
+  - name: computing fingerprints of new keys
+    shell: "ssh-keygen -lf '{{ ssh_hardening_host_key_temp_path }}/{{ item.file }}'"  
+    when: item.fingerprint is undefined 
+    register: host_keys_fingerprints
+    loop: "{{ ssh_hardening_host_keys }}"
+    delegate_to: "localhost"
+
+  - name: "IMPORTANT: NOTE FINGERPRINTS OF THE NEW KEYS"
+    debug:
+      msg: "{{ inventory_hostname }} {{ item.comment }} fingerprint: \
+      {{ host_keys_fingerprints.results[idx].stdout }}"
+    when: item.fingerprint is undefined 
+    loop: "{{ ssh_hardening_host_keys }}"
+    loop_control:
+      index_var: idx
+
+### ssh-hardening/tasks/hostkeys.yml ends here

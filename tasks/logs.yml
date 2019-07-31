@@ -1,0 +1,32 @@
+### ssh-hardening/tasks/logs.yml -- Tasks to increase logs with the
+### ssh server.
+
+### Commentary:
+### Code:
+---
+
+- name: check logging level
+  lineinfile:
+    dest: "{{ ssh_hardening_config_file }}"
+    state: "present"
+    regexp: "^LogLevel"
+    line: "LogLevel {{ ssh_hardening_log_level }}"
+
+- name: set default sftp executable for Debians
+  set_fact:
+    ssh_hardening_sftp_server_bin_default: "/usr/lib/openssh/sftp-server"
+  when: ansible_os_family == "Debian"
+
+- name: set default sftp executable for RedHats
+  set_fact:
+    ssh_hardening_sftp_server_bin_default: "/usr/libexec/openssh/sftp-server"
+  when: ansible_os_family == "RedHat" 
+
+- name: check sftp logging level
+  lineinfile:
+    dest: "{{ ssh_hardening_config_file }}"
+    state: "present"
+    regexp: "^Subsystem[\\s]+sftp[\\s]+"
+    line: "Subsystem sftp {{ ssh_hardening_sftp_server_bin | default(ssh_hardening_sftp_server_bin_default) }} -f {{ ssh_hardening_sftp_log_facility }} -l {{ ssh_hardening_sftp_log_level }}"
+
+### ssh-hardening/tasks/logs.yml
